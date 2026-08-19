@@ -36,7 +36,7 @@ with open(index_file, "r") as fh:
 
 # initialize counters for matched and hopped reads
 matched_counter = {k:0 for k in indexes}
-hopped_counter = {k:0 for k in indexes}
+hopped_counter = {}
 unknown_counter = 0
 
 # create the output files
@@ -83,14 +83,21 @@ with gzip.open(r1_file, "rt") as r1, gzip.open(r2_file, "rt") as r2, gzip.open(i
         elif index_seq_1 != rc_index_seq_2:
             dt.write_record_to_file(hopped_r1, header_r1, r1_rec[1], r1_rec[2], r1_rec[3])
             dt.write_record_to_file(hopped_r2, header_r2, r2_rec[1], r2_rec[2], r2_rec[3])
-            hopped_counter[index_seq_1] += 1
+            counter_key = sorted([index_seq_1, rc_index_seq_2])
+            counter_key = "-".join(counter_key)
+            if counter_key not in hopped_counter:
+                hopped_counter[counter_key] = 1
+            else:
+                hopped_counter[counter_key] += 1
 
         else:
             raise Exception("Unexpected case encountered during demultiplexing.")
 
+print("Matched reads per index:")
 for ind in matched_counter: 
     print(ind, '\t', matched_counter[ind])
 
+print("Hopped reads per index:")
 for ind in hopped_counter:
     print(ind, '\t', hopped_counter[ind])
 
