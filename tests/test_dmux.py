@@ -67,12 +67,11 @@ def unknown_indexes(fastq_file: str) -> bool:
                 break
             if line.startswith("@"):
                 indexes = line.strip("\n").split(" ")[-1]
-                if "N" in indexes:
-                    return True
-                elif indexes.split("-")[0] not in indexes or indexes.split("-")[1] not in indexes:
-                    return True
-                else:
+                if "N" not in indexes:
                     return False
+                elif indexes.split("-")[0] not in indexes or indexes.split("-")[1] not in indexes:
+                    return False
+    return True
 
 def hopped_indexes(fastq_file: str) -> bool:
     """
@@ -90,10 +89,11 @@ def hopped_indexes(fastq_file: str) -> bool:
                 break
             if line.startswith("@"):
                 indexes = line.strip("\n").split(" ")[-1]
-                if indexes.split("-")[0] != indexes.split("-")[1]:
-                    return True
-                else:
+                if indexes.split("-")[0] == indexes.split("-")[1]:
                     return False
+                elif indexes.split("-")[0] not in indexes or indexes.split("-")[1] not in indexes or "N" in indexes:
+                    return False
+    return True
 
 def matched_indexes(fastq_file: str) -> bool:
     """
@@ -111,10 +111,11 @@ def matched_indexes(fastq_file: str) -> bool:
                 break
             elif line.startswith("@"):
                 indexes = line.strip().split(" ")[-1]
-                if indexes.split("-")[0] == indexes.split("-")[1]:
-                    return True
-                else:
+                if indexes.split("-")[0] != indexes.split("-")[1]:
                     return False
+                elif indexes.split("-")[0] not in indexes or indexes.split("-")[1] not in indexes or "N" in indexes:
+                    return False
+    return True
 
 def test_dmux(output_path:str) -> bool:
     """
@@ -148,6 +149,8 @@ def test_dmux(output_path:str) -> bool:
 
     # Check matched, hopped, and unknown indexes are correctly identified
     for index in indexes:
+        r1_line_count = get_fastq_length(f"{output_path}/{index}_R1.fastq.gz")
+        r2_line_count = get_fastq_length(f"{output_path}/{index}_R2.fastq.gz")
         if r1_line_count > 0 and r2_line_count > 0:
             assert matched_indexes(f"{output_path}/{index}_R1.fastq.gz"), f"Matched indexes not found for {index} R1."
             assert matched_indexes(f"{output_path}/{index}_R2.fastq.gz"), f"Matched indexes not found for {index} R2."
