@@ -65,7 +65,7 @@ def cli_end_to_end_pipeline(tmp_path: str):
     # check that the command ran successfully
     assert result.returncode == 0, f"CLI command failed with error: {result.stderr}"
 
-    # ------- check output file lengths --------
+    # --------------------- check output file lengths -----------------------
     # hopped records
     assert count_fastq_records(output_dir / "hopped_R1.fastq.gz") == 3, "Expected 3 hopped records in hopped_R1.fastq.gz."
     assert count_fastq_records(output_dir / "hopped_R2.fastq.gz") == count_fastq_records(output_dir / "hopped_R1.fastq.gz"), "Expected equal number of hopped records in hopped_R1.fastq.gz and hopped_R2.fastq.gz."
@@ -90,11 +90,29 @@ def cli_end_to_end_pipeline(tmp_path: str):
         assert count_fastq_records(output_dir / f"{index}_R2.fastq.gz") == count_fastq_records(output_dir / f"{index}_R1.fastq.gz"), f"Expected equal number of matched records in {index}_R1.fastq.gz and {index}_R2.fastq.gz."
 
     # ---------- direct verification of classification of records -------------
-    matched_ids = ['1265', '1682', '1775', '1286', '1721', '1347', '1367']
+    GTAGCGTA_ids = ['1265', '1682', '1775'] 
+    CGATCGAT_ids = ['1286', '1721'] 
+    GATCAAGG_ids = ['1347']
+    AACAGCGA_ids = ['1367']
     hopped_ids = ['1401', '1450', '1512']
     unknown_ids = ['1574', '1620']
     matched_indexes = ["GTAGCGTA", "CGATCGAT", "GATCAAGG", "AACAGCGA"]
 
     # matched records
     for index in matched_indexes:
-        
+        r1_ids = get_record_ids(output_dir / f"{index}_R1.fastq.gz")
+        r2_ids = get_record_ids(output_dir / f"{index}_R2.fastq.gz")
+        assert r1_ids == r2_ids, f"Record IDs in {index}_R1.fastq.gz and {index}_R2.fastq.gz do not match."
+        assert set(r1_ids) == set(eval(f"{index}_ids")), f"Record IDs in {index}_R1.fastq.gz do not match expected IDs."
+    
+    # hopped records
+    hopped_r1_ids = get_record_ids(output_dir / "hopped_R1.fastq.gz")
+    hopped_r2_ids = get_record_ids(output_dir / "hopped_R2.fastq.gz")
+    assert hopped_r1_ids == hopped_r2_ids, "Record IDs in hopped_R1.fastq.gz and hopped_R2.fastq.gz do not match."
+    assert set(hopped_r1_ids) == set(hopped_ids), "Record IDs in hopped_R1.fastq.gz do not match expected IDs."
+
+    # unknown records
+    unknown_r1_ids = get_record_ids(output_dir / "unknown_R1.fastq.gz")
+    unknown_r2_ids = get_record_ids(output_dir / "unknown_R2.fastq.gz")
+    assert unknown_r1_ids == unknown_r2_ids, "Record IDs in unknown_R1.fastq.gz and unknown_R2.fastq.gz do not match."
+    assert set(unknown_r1_ids) == set(unknown_ids), "Record IDs in unknown_R1.fastq.gz do not match expected IDs."
