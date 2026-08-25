@@ -1,5 +1,5 @@
 import argparse
-from dmux import demultiplex
+from dmux.dmux import demultiplex
 
 __version__ = "0.1.0"
 

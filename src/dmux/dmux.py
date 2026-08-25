@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import dmux_tools as dt
+from dmux import tools as dt
 import gzip
 
 def demultiplex(
