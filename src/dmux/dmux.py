@@ -2,6 +2,7 @@
 
 from dmux import tools as dt
 import gzip
+from pathlib import Path
 
 def demultiplex(
     index_file,
@@ -11,6 +12,8 @@ def demultiplex(
     r2_file,
     output_path,
 ):
+    output_path = Path(output_path)
+    output_path.mkdir(parents=True, exist_ok=True)
 
     indexes = []
     with open(index_file, "r") as fh:

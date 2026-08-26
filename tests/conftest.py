@@ -11,9 +11,9 @@ def input_path(request):
         pytest.fail("--input is required for this test.")
     return request.config.getoption("--input")
 
-@pytest.fixture
-def output_path(request):
-    value = request.config.getoption("--output")
-    if value is None:
-        pytest.fail("--output is required for this test.")
-    return value
+# @pytest.fixture
+# def tmp_path(request):
+#     value = request.config.getoption("--output")
+#     if value is None:
+#         pytest.fail("--output is required for this test.")
+#     return value

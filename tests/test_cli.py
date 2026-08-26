@@ -4,6 +4,9 @@ import subprocess
 from pathlib import Path
 import gzip
 
+DATA_DIR = Path(__file__).parent / "data"
+INDEX_FILE = DATA_DIR / "indexes.txt"
+
 def count_fastq_records(fastq_file: str) -> int:
     """
     Count the number of records in a FASTQ file.
@@ -35,27 +38,27 @@ def get_record_ids(fastq_file: str) -> list:
                 ids.append(line.strip().split(":")[5])
     return ids
 
-def cli_end_to_end_pipeline(tmp_path: str):
+def test_cli_end_to_end_pipeline(tmp_path: str):
     """
     Run the CLI end-to-end pipeline and verify the output files.
 
     Input:
-        tmp_path (str): Path to a temporary directory for output files.
+        tmp_path (str): Path to a directory for output files.
     Output:
         None
     """
     output_dir = Path(tmp_path) / "output"
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     # run the CLI command
     result = subprocess.run(
         [
-            "python",
-            "new_dmux.py",
-            "-r1 tests/data/R1.fastq.gz",
-            "-i1 tests/data/R2.fastq.gz",
-            "-i2 tests/data/R3.fastq.gz",
-            "-r2 tests/data/R4.fastq.gz",
-            "-i tests/data/indexes.txt",
+            "dmux",
+            "-r1", str(DATA_DIR / "R1.fastq.gz"),
+            "-i1", str(DATA_DIR / "R2.fastq.gz"),
+            "-i2", str(DATA_DIR / "R3.fastq.gz"),
+            "-r2", str(DATA_DIR / "R4.fastq.gz"),
+            "-i", str(INDEX_FILE),
             "-o", str(output_dir),
         ],
         capture_output=True,
@@ -90,29 +93,17 @@ def cli_end_to_end_pipeline(tmp_path: str):
         assert count_fastq_records(output_dir / f"{index}_R2.fastq.gz") == count_fastq_records(output_dir / f"{index}_R1.fastq.gz"), f"Expected equal number of matched records in {index}_R1.fastq.gz and {index}_R2.fastq.gz."
 
     # ---------- direct verification of classification of records -------------
-    GTAGCGTA_ids = ['1265', '1682', '1775'] 
-    CGATCGAT_ids = ['1286', '1721'] 
-    GATCAAGG_ids = ['1347']
-    AACAGCGA_ids = ['1367']
-    hopped_ids = ['1401', '1450', '1512']
-    unknown_ids = ['1574', '1620']
-    matched_indexes = ["GTAGCGTA", "CGATCGAT", "GATCAAGG", "AACAGCGA"]
+    expected_ids = {
+        "GTAGCGTA": ['1265', '1682', '1775'],
+        "CGATCGAT": ['1286', '1721'],
+        "GATCAAGG": ['1347'],
+        "AACAGCGA": ['1367'],
+        "hopped": ['1401', '1450', '1512'],
+        "unknown": ['1574', '1620']
+    }
 
-    # matched records
-    for index in matched_indexes:
+    for index, ids in expected_ids.items():
         r1_ids = get_record_ids(output_dir / f"{index}_R1.fastq.gz")
         r2_ids = get_record_ids(output_dir / f"{index}_R2.fastq.gz")
         assert r1_ids == r2_ids, f"Record IDs in {index}_R1.fastq.gz and {index}_R2.fastq.gz do not match."
-        assert set(r1_ids) == set(eval(f"{index}_ids")), f"Record IDs in {index}_R1.fastq.gz do not match expected IDs."
-    
-    # hopped records
-    hopped_r1_ids = get_record_ids(output_dir / "hopped_R1.fastq.gz")
-    hopped_r2_ids = get_record_ids(output_dir / "hopped_R2.fastq.gz")
-    assert hopped_r1_ids == hopped_r2_ids, "Record IDs in hopped_R1.fastq.gz and hopped_R2.fastq.gz do not match."
-    assert set(hopped_r1_ids) == set(hopped_ids), "Record IDs in hopped_R1.fastq.gz do not match expected IDs."
-
-    # unknown records
-    unknown_r1_ids = get_record_ids(output_dir / "unknown_R1.fastq.gz")
-    unknown_r2_ids = get_record_ids(output_dir / "unknown_R2.fastq.gz")
-    assert unknown_r1_ids == unknown_r2_ids, "Record IDs in unknown_R1.fastq.gz and unknown_R2.fastq.gz do not match."
-    assert set(unknown_r1_ids) == set(unknown_ids), "Record IDs in unknown_R1.fastq.gz do not match expected IDs."
+        assert set(r1_ids) == set(ids), f"Record IDs in {index} fastq.gz files do not match expected IDs."

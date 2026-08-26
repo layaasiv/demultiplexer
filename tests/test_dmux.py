@@ -1,8 +1,15 @@
 #!/usr/bin/env python
 from pathlib import Path
 import gzip
+from dmux.dmux import demultiplex
 
-indexes = [line.split("\t")[1] for line in [line.strip() for line in open("data/indexes.txt", "r").readlines()]]
+DATA_DIR = Path(__file__).parent / "data"
+INDEX_FILE = DATA_DIR / "indexes.txt"
+with open(INDEX_FILE, "r") as fh:
+    indexes = [
+        line.strip().split("\t")[1]
+        for line in fh
+    ]
 
 # check file existance
 def check_file_exists(file_path: str) -> bool:
@@ -53,24 +60,28 @@ def get_fastq_length(fastq_file: str) -> int:
 # verify indexes
 def unknown_indexes(fastq_file: str) -> bool:
     """
-    Check if the indexes in the input FASTQ file are unknown (i.e., not specified in the indexes file, or contain 'N' bases).
+    Check whether all records in a FASTQ file have unknown indexes.
 
-    Input:
-        fastq_file - str: Path to FASTQ file.
-    Ouput:
-        bool: True if unknown indexes are found, False otherwise.
+    Returns:
+        bool: True if all indexes are unknown, False otherwise.
     """
     with gzip.open(fastq_file, "rt") as fq:
-        while True:
-            line = fq.readline()
-            if line == "":
-                break
+        for line in fq:
             if line.startswith("@"):
-                indexes = line.strip("\n").split(" ")[-1]
-                if "N" not in indexes:
-                    return False
-                elif indexes.split("-")[0] not in indexes or indexes.split("-")[1] not in indexes:
-                    return False
+                index_pair = line.strip().split(" ")[-1]
+                index1, index2 = index_pair.split("-")
+
+                if (
+                    "N" in index1
+                    or "N" in index2
+                    or index1 not in indexes
+                    or index2 not in indexes
+                ):
+                    continue
+
+                # Found a known, non-N index
+                return False
+
     return True
 
 def hopped_indexes(fastq_file: str) -> bool:
@@ -83,16 +94,13 @@ def hopped_indexes(fastq_file: str) -> bool:
         bool: True if hopped indexes are found, False otherwise.
     """
     with gzip.open(fastq_file, "rt") as fq:
-        while True:
-            line = fq.readline()
-            if line == "":
-                break
+        for line in fq:
             if line.startswith("@"):
-                indexes = line.strip("\n").split(" ")[-1]
-                if indexes.split("-")[0] == indexes.split("-")[1]:
-                    return False
-                elif indexes.split("-")[0] not in indexes or indexes.split("-")[1] not in indexes or "N" in indexes:
-                    return False
+                index_pair = line.strip().split(" ")[-1]
+                index1, index2 = index_pair.split("-")
+                if index1 != index2:
+                    continue
+                return False
     return True
 
 def matched_indexes(fastq_file: str) -> bool:
@@ -105,25 +113,40 @@ def matched_indexes(fastq_file: str) -> bool:
         bool: True if matched indexes are found, False otherwise.
     """
     with gzip.open(fastq_file, "rt") as fq:
-        while True:
-            line = fq.readline()
-            if line == "":
-                break
-            elif line.startswith("@"):
-                indexes = line.strip().split(" ")[-1]
-                if indexes.split("-")[0] != indexes.split("-")[1]:
-                    return False
-                elif indexes.split("-")[0] not in indexes or indexes.split("-")[1] not in indexes or "N" in indexes:
-                    return False
+        for line in fq:
+            if line.startswith("@"):
+                index_pair = line.strip().split(" ")[-1]
+                index1, index2 = index_pair.split("-")
+                if (
+                    index1 == index2
+                    and index1 in indexes
+                    and index2 in indexes
+                    and "N" not in index1
+                    and "N" not in index2
+                ):
+                    continue
+                return False
     return True
 
-def test_dmux(output_path:str) -> bool:
+def test_dmux(tmp_path: str) -> bool:
     """
     Test the demultiplexing process by checking the output files for expected properties.
 
     Output:
         None
     """
+
+    output_path = Path(tmp_path) / "output"
+
+    demultiplex(
+        index_file=INDEX_FILE,
+        r1_file=DATA_DIR / "R1.fastq.gz",
+        i1_file=DATA_DIR / "R2.fastq.gz",
+        i2_file=DATA_DIR / "R3.fastq.gz",
+        r2_file=DATA_DIR / "R4.fastq.gz",
+        output_path=output_path,
+    )
+
     # Check if output files exist
     for index in indexes:
         assert check_file_exists(f"{output_path}/{index}_R1.fastq.gz"), f"Output file for {index} R1 does not exist."
