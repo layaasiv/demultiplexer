@@ -1,8 +1,11 @@
-import pytest
 from pathlib import Path
+
+import pytest
+
 
 def pytest_addoption(parser):
     parser.addoption("--input", action="store", default=None)
+
 
 @pytest.fixture
 def input_path(request):

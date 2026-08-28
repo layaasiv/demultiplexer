@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 def fastq_parser(fastq_file: str) -> tuple:
     """
     Parses a FASTQ file one record at a time, and returns a tuple containing the sequence identifier, the sequence, and the quality scores.
@@ -10,18 +8,21 @@ def fastq_parser(fastq_file: str) -> tuple:
         tuple: A tuple containing the sequence identifier, the sequence, and the quality scores.
     """
     while True:
-        header = fastq_file.readline().rstrip('\n')
+        header = fastq_file.readline().rstrip("\n")
         if not header:
             break
-        seq = fastq_file.readline().rstrip('\n')
-        plus_line = fastq_file.readline().rstrip('\n')
-        qscores = fastq_file.readline().rstrip('\n')
+        seq = fastq_file.readline().rstrip("\n")
+        plus_line = fastq_file.readline().rstrip("\n")
+        qscores = fastq_file.readline().rstrip("\n")
         yield header, seq, plus_line, qscores
 
-def create_new_header(header: str, index_seq_1: str, reverse_complement_index_seq_2: str) -> str:
+
+def create_new_header(
+    header: str, index_seq_1: str, reverse_complement_index_seq_2: str
+) -> str:
     """
     Creates a new header for the demultiplexed FASTQ file implementing the format: @<original_header> <index_seq_1>-<reverse_complement_index_seq_2>.
-    
+
     Input:
         header (str): The original header from the FASTQ file.
         index_seq_1 (str): The index sequence from the first read.
@@ -32,7 +33,14 @@ def create_new_header(header: str, index_seq_1: str, reverse_complement_index_se
     """
     return f"{header} {index_seq_1}-{reverse_complement_index_seq_2}"
 
-def write_record_to_file(output_file_handle: str, new_header:str, sequence:str, plus_line:str, qscores:str) -> None:
+
+def write_record_to_file(
+    output_file_handle: str,
+    new_header: str,
+    sequence: str,
+    plus_line: str,
+    qscores: str,
+) -> None:
     """
     Writes the demultiplexed records to a new FASTQ file with the new header format: @<original_header> <index_seq_1>-<reverse_complement_index_seq_2>.
 
@@ -48,6 +56,7 @@ def write_record_to_file(output_file_handle: str, new_header:str, sequence:str, 
     """
     output_file_handle.write(f"{new_header}\n{sequence}\n{plus_line}\n{qscores}\n")
 
+
 def reverse_complement(seq: str) -> str:
     """
     Returns the reverse complement of a given DNA sequence.
@@ -57,5 +66,5 @@ def reverse_complement(seq: str) -> str:
     Output:
         str: The reverse complement of the input DNA sequence.
     """
-    complement = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C', 'N': 'N'}
-    return ''.join(complement[base] for base in reversed(seq))
+    complement = {"A": "T", "T": "A", "C": "G", "G": "C", "N": "N"}
+    return "".join(complement[base] for base in reversed(seq))
