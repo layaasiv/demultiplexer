@@ -38,6 +38,40 @@ def get_record_ids(fastq_file: str) -> list:
                 ids.append(line.strip().split(":")[5])
     return ids
 
+########################################### TESTS ###################################################
+def test_cli_missing_input(tmp_path: str):
+    """
+    Run CLI pipeline with invalid file path to verify errors are being caught and communicated as expected.
+
+    Input:
+        tmp_path (str): Path to a directory for output files.
+    Output:
+        None
+    """
+    output_dir = Path(tmp_path) / "output"
+    
+    result = subprocess.run(
+        [
+            "dmux",
+            "-r1",
+            str(DATA_DIR / "P1.fastq.gz"),
+            "-i1",
+            str(DATA_DIR / "R2.fastq.gz"),
+            "-i2",
+            str(DATA_DIR / "R3.fastq.gz"),
+            "-r2",
+            str(DATA_DIR / "R4.fastq.gz"),
+            "-i",
+            str(INDEX_FILE),
+            "-o",
+            str(output_dir)
+        ],
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode != 0
+    assert "does not exist" in result.stderr
 
 def test_cli_end_to_end_pipeline(tmp_path: str):
     """
@@ -49,7 +83,6 @@ def test_cli_end_to_end_pipeline(tmp_path: str):
         None
     """
     output_dir = Path(tmp_path) / "output"
-    output_dir.mkdir(parents=True, exist_ok=True)
 
     # run the CLI command
     result = subprocess.run(

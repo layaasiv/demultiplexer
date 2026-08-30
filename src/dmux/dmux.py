@@ -65,7 +65,7 @@ def demultiplex(
         )
 
         # output tsv files for matched, hopped, and total counts
-        mat_per = stack.enter_context(open(f"{output_path}/mat_percents.tsv", "w"))
+        mat_per = stack.enter_context(open(f"{output_path}/match_percents.tsv", "w"))
         hop_per = stack.enter_context(open(f"{output_path}/hop_percents.tsv", "w"))
         tot_per = stack.enter_context(open(f"{output_path}/total_percents.tsv", "w"))
 

@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from pathlib import Path
+import sys
 import argparse
 
 from dmux.dmux import demultiplex
@@ -42,19 +44,46 @@ def get_args():
     )
     return parser.parse_args()
 
+def validate_inputs(args):
+    files = {
+        "R1": args.read1,
+        "I1": args.index1,
+        "I2": args.index2,
+        "R2": args.read2,
+        "indexes": args.indexes
+    }
+
+    for name, filepath in files.items():
+        if not Path(file).is_file():
+            raise FileNotFoundError(
+                f"{name} does not exist at: {filepath}."
+            )
 
 def main():
     args = get_args()
 
-    demultiplex(
-        index_file=args.indexes,
-        r1_file=args.read1,
-        i1_file=args.index1,
-        i2_file=args.index2,
-        r2_file=args.read2,
-        output_path=args.outputpath,
-    )
+    try:
+        validate_inputs(args)
+
+        demultiplex(
+            index_file=args.indexes,
+            r1_file=args.read1,
+            i1_file=args.index1,
+            i2_file=args.index2,
+            r2_file=args.read2,
+            output_path=args.outputpath,
+        )
+    
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=stderr)
+        return 1
+    
+    except ValueError as e:
+        print(f"Error: {e}", file=stderr)
+        return 2
+    
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
