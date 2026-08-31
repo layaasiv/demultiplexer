@@ -54,7 +54,7 @@ def validate_inputs(args):
     }
 
     for name, filepath in files.items():
-        if not Path(file).is_file():
+        if not Path(filepath).is_file():
             raise FileNotFoundError(
                 f"{name} does not exist at: {filepath}."
             )
