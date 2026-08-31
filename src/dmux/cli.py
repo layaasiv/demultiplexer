@@ -44,20 +44,20 @@ def get_args():
     )
     return parser.parse_args()
 
+
 def validate_inputs(args):
     files = {
         "R1": args.read1,
         "I1": args.index1,
         "I2": args.index2,
         "R2": args.read2,
-        "indexes": args.indexes
+        "indexes": args.indexes,
     }
 
     for name, filepath in files.items():
         if not Path(filepath).is_file():
-            raise FileNotFoundError(
-                f"{name} does not exist at: {filepath}."
-            )
+            raise FileNotFoundError(f"{name} does not exist at: {filepath}.")
+
 
 def main():
     args = get_args()
@@ -73,15 +73,15 @@ def main():
             r2_file=args.read2,
             output_path=args.outputpath,
         )
-    
+
     except FileNotFoundError as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
-    
+
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)
         return 2
-    
+
     return 0
 
 

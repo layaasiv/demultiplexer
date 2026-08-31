@@ -38,6 +38,7 @@ def get_record_ids(fastq_file: str) -> list:
                 ids.append(line.strip().split(":")[5])
     return ids
 
+
 ########################################### TESTS ###################################################
 def test_cli_missing_input(tmp_path: str):
     """
@@ -49,7 +50,7 @@ def test_cli_missing_input(tmp_path: str):
         None
     """
     output_dir = Path(tmp_path) / "output"
-    
+
     result = subprocess.run(
         [
             "dmux",
@@ -64,15 +65,16 @@ def test_cli_missing_input(tmp_path: str):
             "-i",
             str(INDEX_FILE),
             "-o",
-            str(output_dir)
+            str(output_dir),
         ],
         capture_output=True,
         text=True,
-        check=False
+        check=False,
     )
 
     assert result.returncode != 0
     assert "does not exist" in result.stderr
+
 
 def test_cli_end_to_end_pipeline(tmp_path: str):
     """

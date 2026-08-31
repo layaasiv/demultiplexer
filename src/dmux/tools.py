@@ -18,9 +18,7 @@ def fastq_parser(fastq_file: str) -> tuple:
 
 
 def create_new_header(
-    header: str, 
-    index_seq_1: str, 
-    reverse_complement_index_seq_2: str
+    header: str, index_seq_1: str, reverse_complement_index_seq_2: str
 ) -> str:
     """
     Creates a new header for the demultiplexed FASTQ file implementing the format: @<original_header> <index_seq_1>-<reverse_complement_index_seq_2>.
