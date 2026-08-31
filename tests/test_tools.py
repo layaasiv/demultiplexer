@@ -68,7 +68,7 @@ def test_write_record_to_file(tmp_path: str):
     with gzip.open(output_file_path, "wt") as fh:
         dt.write_record_to_file(
             output_file_handle=fh,
-            header="header",
+            new_header="header",
             sequence="sequence",
             plus_line="+",
             qscores="quality scores"
