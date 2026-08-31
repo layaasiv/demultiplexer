@@ -18,7 +18,9 @@ def fastq_parser(fastq_file: str) -> tuple:
 
 
 def create_new_header(
-    header: str, index_seq_1: str, reverse_complement_index_seq_2: str
+    header: str, 
+    index_seq_1: str, 
+    reverse_complement_index_seq_2: str
 ) -> str:
     """
     Creates a new header for the demultiplexed FASTQ file implementing the format: @<original_header> <index_seq_1>-<reverse_complement_index_seq_2>.
@@ -67,4 +69,9 @@ def reverse_complement(seq: str) -> str:
         str: The reverse complement of the input DNA sequence.
     """
     complement = {"A": "T", "T": "A", "C": "G", "G": "C", "N": "N"}
+    for base in seq:
+        if base not in complement.keys():
+            raise ValueError(
+                "Index contains a value that is not a DNA nucleotide (ACGTN)."
+            )
     return "".join(complement[base] for base in reversed(seq))

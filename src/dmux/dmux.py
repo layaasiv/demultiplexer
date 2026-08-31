@@ -4,7 +4,7 @@ import gzip
 from contextlib import ExitStack
 from pathlib import Path
 
-from dmux import tools as dt
+import dmux.tools as dt
 
 
 class DemultiplexError(Exception):
@@ -34,8 +34,7 @@ def demultiplex(
     unknown_counter = 0
 
     with ExitStack() as stack:
-        # create the output files
-        # output fastq files for correctly matched indexes
+        # create output fastq files for correctly matched indexes
         output_files = {}
 
         for ind in indexes:
