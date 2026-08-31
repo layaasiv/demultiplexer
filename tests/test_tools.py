@@ -65,7 +65,7 @@ def test_create_new_header():
 def test_write_record_to_file(tmp_path: str):
     output_file_path = Path(tmp_path) / "test_output.fastq.gz"
 
-    with gzip.open(output_file_path, "wt") as fh:
+    with gzip.open(output_file_path, "rwt") as fh:
         dt.write_record_to_file(
             output_file_handle=fh,
             new_header="header",
