@@ -74,6 +74,7 @@ def test_write_record_to_file(tmp_path: str):
             qscores="quality scores"
         )
     
-    with gzip.open(output_file_path, "rt") as fh:
-        assert sum(1 for _ in fh) > 0, "write_record_to_file output file is empty."
-        assert sum(1 for _ in fh) == 4, "write_record_to_file output file does not have the expected number of lines."
+    with gzip.open(output_file_path, "rt") as rh:
+        lines = list(rh)
+        assert len(lines) > 0, "write_record_to_file output file is empty."
+        assert len(lines) == 4, "write_record_to_file output file does not have the expected number of lines."
