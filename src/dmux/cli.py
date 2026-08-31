@@ -75,11 +75,11 @@ def main():
         )
     
     except FileNotFoundError as e:
-        print(f"Error: {e}", file=stderr)
+        print(f"Error: {e}", file=sys.stderr)
         return 1
     
     except ValueError as e:
-        print(f"Error: {e}", file=stderr)
+        print(f"Error: {e}", file=sys.stderr)
         return 2
     
     return 0
