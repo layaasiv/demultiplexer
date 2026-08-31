@@ -35,15 +35,14 @@ dmux \
 
 ## Input
 
-Four Illumina-sequencing-style FASTQ files (compressed) in which:
+* Four Illumina-sequencing-style FASTQ files (compressed) in which:
   - read 1: Forward read sequence
   - read 2: Index 1 sequence
   - read 3: Index 2 sequence
   - read 4: Reverse read sequence
 
-A text file containing indexes used in the experiment, representing the index sequences that can be expected in the sequencing data.
-
-Path to directory where output files will be saved.
+* A text file containing indexes used in the experiment, representing the index sequences that can be expected in the sequencing data.
+* Path to directory where output files will be saved.
 
 ## Output
 
@@ -64,8 +63,14 @@ Thorough tests of the input data, output, and CLI are included in `tests/`. Test
 pytest
 ```
 
+To run input tests on custom input, run:
+
+```
+pytest --input <path to input data directory>
+```
+
 ## Development
 
-ruff check .
-ruff format --check .
+ruff check . \
+ruff format --check . \
 pytest
