@@ -70,7 +70,7 @@ def reverse_complement(seq: str) -> str:
     """
     complement = {"A": "T", "T": "A", "C": "G", "G": "C", "N": "N"}
     for base in seq:
-        if base not in complement.keys():
+        if base not in complement:
             raise ValueError(
                 "Index contains a value that is not a DNA nucleotide (ACGTN)."
             )

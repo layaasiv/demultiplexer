@@ -68,6 +68,7 @@ def test_cli_missing_input(tmp_path: str):
         ],
         capture_output=True,
         text=True,
+        check=False
     )
 
     assert result.returncode != 0

@@ -1,5 +1,5 @@
-from pathlib import Path
 import gzip
+from pathlib import Path
 
 import dmux.tools as dt
 
